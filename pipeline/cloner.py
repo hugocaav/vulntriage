@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import argparse
+import os
 import shutil
+import stat
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -14,7 +16,8 @@ except ImportError:  # pragma: no cover
     class GitCommandError(Exception):
         """Fallback exception when GitPython is unavailable."""
 
-BASE_OUTPUT_DIR = Path("outputs") / "repos"
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+BASE_OUTPUT_DIR = PROJECT_ROOT / "outputs" / "repos"
 
 
 def _validate_github_url(repo_url: str) -> tuple[str, str]:
@@ -42,9 +45,15 @@ def _build_clone_path(owner: str, repo_name: str) -> Path:
     return (BASE_OUTPUT_DIR / f"{owner}__{repo_name}").resolve()
 
 
+def _on_remove_error(func: object, path: str, exc_info: tuple[object, object, object]) -> None:
+    del exc_info
+    os.chmod(path, stat.S_IWRITE)
+    func(path)
+
+
 def _remove_existing_clone(target_path: Path) -> None:
     if target_path.exists():
-        shutil.rmtree(target_path)
+        shutil.rmtree(target_path, onerror=_on_remove_error)
 
 
 def clone_repo(repo_url: str) -> str:

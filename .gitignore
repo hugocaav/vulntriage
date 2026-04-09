@@ -4,5 +4,6 @@ __pycache__/
 reports/
 workspace/
 outputs/repos/
+outputs/reports/
 .next/
 node_modules/
