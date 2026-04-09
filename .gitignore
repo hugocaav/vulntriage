@@ -3,5 +3,6 @@ __pycache__/
 .env
 reports/
 workspace/
+outputs/repos/
 .next/
 node_modules/
