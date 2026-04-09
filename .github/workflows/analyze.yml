@@ -1,0 +1,37 @@
+name: Analyze Repository
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_repo:
+        description: "Git repository URL to analyze"
+        required: true
+        type: string
+  push:
+    branches:
+      - main
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install pipeline dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install fastapi uvicorn pytest semgrep bandit anthropic
+
+      - name: Run vulnerability pipeline
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          TARGET_REPO: ${{ inputs.target_repo || format('https://github.com/{0}.git', github.repository) }}
+        run: |
+          python -m pipeline.cloner "$TARGET_REPO" workspace/target
+          python -m pipeline.scanner workspace/target reports/raw-findings.json

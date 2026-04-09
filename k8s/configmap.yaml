@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vulntriage-config
+data:
+  API_HOST: "0.0.0.0"
+  API_PORT: "8000"
+  REPORTS_DIR: "/app/reports"
+

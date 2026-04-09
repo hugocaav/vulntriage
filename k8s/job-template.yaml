@@ -1,0 +1,17 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: vulntriage-job
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: pipeline
+          image: vulntriage-pipeline:latest
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: vulntriage-config
+          command: ["python", "-m", "pipeline.scanner"]
+
